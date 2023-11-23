@@ -1,22 +1,28 @@
 const canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
 
+// variable
+// largeur des barres de vies
 let yellowRect1width = -432;
 let yellowRect2width = 432;
+// commandes bloqués
 let commandsBlocked = false;
+// player et enemy au sol
 let isPlayerOnGround = true;
 let isEnemyOnGround = true;
 
 
 
-
+// fenêtre de l'écran du jeu
 canvas.width = 960
 canvas.height = 530
-
+// fond du jeu 
 c.fillRect(0, 0, canvas.width, canvas.height)
 
+// gravité
 const gravity = 0.6
 
+// classe joueur 
 class Sprite {
    constructor({position, velocity, color, offset, health, playerName}){
        this.position = position
@@ -39,9 +45,9 @@ class Sprite {
        this.playerName = playerName
 
    }
-
+   
    draw() {
-       // attack Box
+       // dessine l'attackBox
        if (this.isAttacking) {
            c.fillStyle = 'green'
            c.fillRect(
@@ -52,26 +58,28 @@ class Sprite {
            )
            }
 
-       // player
+       // desine les joueurs
        c.fillStyle = this.color
        c.fillRect(this.position.x, this.position.y, this.width, this.height)
 
    }
 
    update() {
+        // met à jour les dessins avec leur nouvelle position 
        this.draw()
        this.attackBox.position.x = this.position.x + this.attackBox.offset.x
        this.attackBox.position.y = this.position.y
 
        this.position.x += this.velocity.x
        this.position.y += this.velocity.y
-
+        // détecte le sol et impose une gravité si le joueur touche pas le sol  
        if (this.position.y + this.height + this.velocity.y >= canvas.height) {
            this.velocity.y = 0
        } else this.velocity.y += gravity
    }
 
    attack () {
+        // le joeur attack seulement 100ms, donc affiche l'attackBox seulement 100ms
        this.isAttacking = true
        setTimeout(() => {
            this.isAttacking = false
@@ -79,7 +87,7 @@ class Sprite {
    }
 }
 
-
+// création de l'objet player (p1)
 const player = new Sprite({
    position: {
        x: 215,
@@ -98,6 +106,7 @@ const player = new Sprite({
    playerName: namePlayer
 })
 
+// création de l'objet enemy (p2)
 const enemy = new Sprite({
    position: {
        x: 695,
@@ -116,6 +125,7 @@ const enemy = new Sprite({
    playerName: nameEnemy
 })
 
+// clés préssées 
 const keys = {
    q: {
        pressed: false
@@ -137,80 +147,19 @@ const keys = {
    }
 }
 
-const gameHistory = [];
-
-// Fonction pour initialiser une nouvelle partie
-function initializeGame(playerName, enemyName) {
-    yellowRect1width = -432;
-    yellowRect2width = 432;
-    commandsBlocked = false;
-    isPlayerOnGround = true;
-    isEnemyOnGround = true;
-
-    player.position = { x: 215, y: 0 };
-    enemy.position = { x: 695, y: 0 };
-
-    player.velocity = { x: 0, y: 0 };
-    enemy.velocity = { x: 0, y: 0 };
-
-    player.health = 432;
-    enemy.health = 432;
-
-    player.playerName = playerName;
-    enemy.playerName = enemyName;
-
-    animate();
-}
-
-// Fonction pour enregistrer le résultat de la partie dans l'historique
-function saveGameResult(winner) {
-    const gameResult = {
-        player1: player.playerName,
-        player2: enemy.playerName,
-        winner: winner,
-    };
-    gameHistory.push(gameResult);
-}
-
-// Fonction pour afficher l'historique des parties
-function showGameHistory() {
-    console.log("Historique des parties:");
-    gameHistory.forEach((result, index) => {
-        console.log(`Partie ${index + 1}: ${result.player1} vs ${result.player2}, Gagnant: ${result.winner}`);
-    });
-}
-
-// ...
-
-// Fonction pour recommencer le jeu avec les mêmes noms
-function restartGame() {
-    initializeGame(player.playerName, enemy.playerName);
-}
-
-// Fonction pour changer les noms des joueurs et recommencer le jeu
-function changeNamesAndRestart() {
-    const newPlayerName = prompt("Nouveau nom du joueur (p1) :");
-    const newEnemyName = prompt("Nouveau nom du joueur (p2) :");
-
-    if (newPlayerName && newEnemyName) {
-        initializeGame(newPlayerName, newEnemyName);
-    } else {
-        alert("Veuillez entrer les deux noms de joueurs.");
-    }
-}
 
 function checkBorders(sprite) {
-   // Vérifie le bord gauche du canvas
+   // vérifie le bord gauche du canvas
    if (sprite.position.x < 0) {
        sprite.position.x = 0;
    }
 
-   // Vérifie le bord droit du canvas
+   // vérifie le bord droit du canvas
    if (sprite.position.x + sprite.width > canvas.width) {
        sprite.position.x = canvas.width - sprite.width;
    }
 
-   // Vérifie le bord supérieur du canvas
+   // vérifie le bord supérieur du canvas
    if (sprite.position.y < 0) {
        sprite.position.y = 0;
    }
@@ -219,6 +168,7 @@ function checkBorders(sprite) {
 
 
 function rectCollision({ rect1, rect2}) {
+    // return true si l'attack box à touché un joueur 
    return (
        rect1.attackBox.position.x + rect1.attackBox.width >= rect2.position.x && 
        rect1.attackBox.position.x <=rect2.position.x + rect2.width && 
@@ -228,6 +178,7 @@ function rectCollision({ rect1, rect2}) {
 }
 
 function determineWinner({player, enemy}) {
+    // determine le gagnant et affiche son nom
    if (player.health > enemy.health) {
        c.fillStyle = 'white';
        c.textAlign = 'center';
@@ -243,12 +194,15 @@ function determineWinner({player, enemy}) {
    }
 }
 
+// fonction / boucle principale
 function animate() {
+    // formation de la boucle 
    window.requestAnimationFrame(animate)
+   // fond de la fenêtre canva
    c.fillStyle = 'black'
    c.fillRect(0, 0, canvas.width, canvas.height)
 
-   // rect fond
+   // fond barres de vies
    c.fillStyle = 'red'
    c.fillRect(0, 22.5, 432 , 35)
 
@@ -259,14 +213,14 @@ function animate() {
    c.fillStyle = 'blue'
    c.fillRect(432, 17.5, 96 , 45)
 
-   // rect 1 , 2
+   // barres de vies
    c.fillStyle = 'yellow';
    c.fillRect(432, 22.5, yellowRect1width, 35);
 
    c.fillStyle = 'yellow';
    c.fillRect(528, 22.5, yellowRect2width, 35);
    
-   // name player
+   // nom des joueurs 
     c.fillStyle = 'black';
     c.textAlign = 'center';
     c.font = '20px Arial';
@@ -277,17 +231,21 @@ function animate() {
     c.font = '20px Arial';
     c.fillText(nameEnemy, 900 , 47)
 
-
+    // MAJ de l'affichage des joueurs 
    player.update() 
    enemy.update()
 
+   // vérifie les bords des joueurs
    checkBorders(player);
    checkBorders(enemy);
 
+   // initialisation des vitesses des joueurs
    player.velocity.x = 0
    enemy.velocity.x =0
 
-   // player movement
+   // modification de la vitesse des joueurs une fois les commandes utilisées
+
+   // player movement 
    if (keys.q.pressed && player.lastKey === 'q') {
        player.velocity.x = -5
    } else if (keys.d.pressed && player.lastKey === 'd') {
@@ -308,7 +266,7 @@ function animate() {
     isEnemyOnGround = false; 
 }
 
-   // detect for collision
+   // détecte collision player --> enemy
    if (
        rectCollision({
            rect1: player,
@@ -328,6 +286,7 @@ function animate() {
        }
    }
 
+   // détecte collision enemy  --> player
    if (
        rectCollision({
            rect1: enemy,
@@ -347,27 +306,29 @@ function animate() {
        }
    }
 
-   // end game
-   if (enemy.health <= 0 || player.health <= 0) {
-       determineWinner({player, enemy})
-       commandsBlocked = true;
-   }
-
-   // player, enemy on ground
+   // détecte joueurs au sol 
    if (player.position.y + player.height >= canvas.height) {
     isPlayerOnGround = true;
     }
     if (enemy.position.y + enemy.height >= canvas.height) {
     isEnemyOnGround = true;
     }
+
+   // fin du jeu 
+   if (enemy.health <= 0 || player.health <= 0) {
+       determineWinner({player, enemy})
+       commandsBlocked = true;
+   }
+
    
    
 }
 
 
-
+// appel de la fonction animer 
 animate()
 
+// détecte touche préssées
 window.addEventListener('keydown', (event) => {
     if (!commandsBlocked) {
         switch (event.key) {
@@ -414,6 +375,7 @@ window.addEventListener('keydown', (event) => {
    
 })
 
+// détecte touche relachées
 window.addEventListener('keyup', (event) => {
    // player key
    if (!commandsBlocked) {
