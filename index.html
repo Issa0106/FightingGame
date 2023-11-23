@@ -3,17 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <title>Jeu2</title>
+    <style>
+        body {
+            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #game-info {
+            margin-right: 20px;
+        }
+    </style>
 </head>
-<body style="overflow: hidden">
+<body>
     <canvas></canvas>
-    <p>Commandes:</p>
-    <p>player 1:</p>
-    <p>mov: Q, Z, D</p>
-    <p>Attack: S</p>
     
-    <p>player 2:</p>
-    <p>mov: ArrowLeft, ArrowUp, ArrowRight</p>
-    <p>Attack: ArrowDown</p>
+    <div id="game-info">
+        <p>Commandes:</p>
+        <div>
+            <p>Player 1:</p>
+            <p>Mouvement: Q, Z, D</p>
+            <p>Attaque: S</p>
+        </div>
+        
+        <div>
+            <p>Player 2:</p>
+            <p>Mouvement: ArrowLeft, ArrowUp, ArrowRight</p>
+            <p>Attaque: ArrowDown</p>
+        </div>
+    </div>
+   
     <script>
         let namePlayer = "Player 1";
         let nameEnemy = "Player 2";
